@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notifications — Walter Tech Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1729;
+    --rail:#0A0E1D;
+    --surface:#1A2240;
+    --surface-soft:#161E38;
+    --border:rgba(255,255,255,0.07);
+    --text:#F3F5FB;
+    --muted:#8B93B8;
+    --amber:#F2A93B;
+    --amber-soft:rgba(242,169,59,0.14);
+    --teal:#3ECF8E;
+    --teal-soft:rgba(62,207,142,0.14);
+    --danger:#F2665B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    margin:0;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:76px;
+    background:var(--rail);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 0;
+    z-index:40;
+    transition:width .28s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+  }
+  .sidebar:hover{width:222px;}
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:0 22px 26px 22px;
+    white-space:nowrap;
+  }
+  .brand-mark{
+    width:32px;height:32px;min-width:32px;
+    border-radius:9px;
+    background:linear-gradient(145deg,var(--amber),#c9821f);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#0A0E1D;
+    position:relative;
+  }
+  .pulse-dot{
+    position:absolute;
+    bottom:-2px;right:-2px;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px var(--rail);
+  }
+  .pulse-dot::after{
+    content:'';
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:var(--teal);
+    animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);opacity:.7;}
+    100%{transform:scale(2.6);opacity:0;}
+  }
+  .brand-name{
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.2px;
+    opacity:0;
+    transition:opacity .18s;
+  }
+  .sidebar:hover .brand-name{opacity:1;transition-delay:.08s;}
+
+  nav.side-nav{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:6px 12px;
+  }
+  .nav-item{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:11px 12px;
+    border-radius:10px;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    transition:color .15s, background .15s;
+  }
+  .nav-item svg{width:19px;height:19px;min-width:19px;stroke:currentColor;}
+  .nav-item:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+  .nav-item.active{color:var(--amber);background:var(--amber-soft);}
+  .nav-item.active::before{
+    content:'';
+    position:absolute;
+    left:-12px;top:50%;
+    transform:translateY(-50%);
+    width:3px;height:18px;
+    border-radius:0 3px 3px 0;
+    background:var(--amber);
+  }
+  .nav-label{opacity:0;transition:opacity .18s;}
+  .sidebar:hover .nav-label{opacity:1;transition-delay:.06s;}
+  .nav-spacer{flex:1;}
+
+  /* ---------- MAIN ---------- */
+  .main{
+    margin-left:76px;
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:18px 32px;
+    background:rgba(15,23,41,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .menu-btn{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    width:38px;height:38px;
+    align-items:center;justify-content:center;
+    color:var(--text);
+    cursor:pointer;
+  }
+  .search{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:9px 14px;
+    width:320px;
+    max-width:100%;
+    color:var(--muted);
+  }
+  .search input{
+    background:none;border:none;outline:none;
+    color:var(--text);font-family:'Inter',sans-serif;
+    font-size:13.5px;width:100%;
+  }
+  .search input::placeholder{color:var(--muted);}
+  .top-actions{display:flex;align-items:center;gap:16px;}
+  .icon-btn{
+    position:relative;
+    width:38px;height:38px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .icon-btn svg{width:17px;height:17px;}
+  .badge-dot{
+    position:absolute;top:7px;right:7px;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--danger);
+    box-shadow:0 0 0 2px var(--surface);
+  }
+  .user-chip{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 12px 6px 6px;
+    border-radius:30px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(145deg,var(--teal),#1f8f5c);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#06251A;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .user-chip span{font-size:13px;font-weight:500;}
+
+  .content{
+    padding:32px;
+    flex:1;
+    max-width: 1000px;
+  }
+
+  /* ---------- NOTIFICATIONS PAGE SPECIFIC ---------- */
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .page-header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .page-header p {
+    color: var(--muted);
+    margin-top: 6px;
+    font-size: 14.5px;
+  }
+  
+  .qa-btn{
+    display:flex;align-items:center;gap:10px;
+    padding:11px 16px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    font-size:13.5px;font-weight:500;
+    color: var(--text);
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .qa-btn:hover{border-color:var(--amber);background:var(--amber-soft);}
+  .qa-btn svg{width:16px;height:16px;color:var(--amber);flex-shrink:0;}
+
+  .notification-group {
+    margin-bottom: 32px;
+  }
+  .notification-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .notification-date::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .noti-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+    transition: transform 0.2s, border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .noti-card:hover {
+    transform: translateX(4px);
+    border-color: rgba(255,255,255,0.15);
+  }
+  .noti-card.unread::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--amber);
+  }
+
+  .noti-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .noti-icon svg { width: 20px; height: 20px; }
+  .noti-icon.info { background: rgba(99,140,255,0.14); color: #7C9BFF; }
+  .noti-icon.success { background: var(--teal-soft); color: var(--teal); }
+  .noti-icon.warning { background: var(--amber-soft); color: var(--amber); }
+  .noti-icon.danger { background: rgba(242,102,91,0.14); color: var(--danger); }
+
+  .noti-content {
+    flex: 1;
+  }
+  .noti-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px;
+    gap: 12px;
+  }
+  .noti-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin: 0;
+  }
+  .noti-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  .noti-desc {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+  }
+  
+  .noti-actions {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-outline:hover {
+    background: var(--surface-soft);
+    border-color: rgba(255,255,255,0.2);
+  }
+  .btn-primary {
+    background: var(--teal-soft);
+    border: 1px solid transparent;
+    color: var(--teal);
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-primary:hover {
+    background: rgba(62,207,142,0.25);
+  }
+
+  footer{
+    text-align:center;
+    padding:22px;
+    color:var(--muted);
+    font-size:12px;
+    border-top:1px solid var(--border);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:760px){
+    .sidebar{
+      width:0;
+      padding:22px 0;
+      transition:width .25s;
+    }
+    .sidebar.open{width:222px;}
+    .main{margin-left:0;}
+    .menu-btn{display:flex;}
+    .search{display:none;}
+    .noti-card { flex-direction: column; gap: 12px; }
+    .noti-header { flex-direction: column; gap: 4px; }
+  }
+
+  /* accessibility */
+  a:focus-visible,button:focus-visible,.nav-item:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+    border-radius:8px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">W<span class="pulse-dot"></span></div>
+      <div class="brand-name">Walter&nbsp;Tech</div>
+    </div>
+    <nav class="side-nav">
+      <a href="dash.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="userdetail.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.2-6 7.5-6s6 2 7.5 6"/></svg>
+        <span class="nav-label">User Details</span>
+      </a>
+      <!-- Active state moved to Notifications -->
+      <a href="notifications.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+        <span class="nav-label">Notifications</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1-1.7-1.7-1.7-1.7 1a1.7 1.7 0 00-3 0l-1.7-1-1.7 1.7 1 1.7a1.7 1.7 0 000 3l-1 1.7 1.7 1.7 1.7-1a1.7 1.7 0 003 0l1.7 1 1.7-1.7z"/></svg>
+        <span class="nav-label">Settings</span>
+      </a>
+      <a href="support.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 18h.01M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4.5"/><circle cx="12" cy="12" r="9"/></svg>
+        <span class="nav-label">Support</span>
+      </a>
+      <a href="faqs.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 015.4.9c0 1.9-2.6 1.9-2.6 3.6M12 17h.01"/></svg>
+        <span class="nav-label">FAQs</span>
+      </a>
+      <div class="nav-spacer"></div>
+      <a href="lockscreen.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 4h4a1 1 0 011 1v14a1 1 0 01-1 1h-4"/><path d="M10 8l-4 4 4 4M6 12h12"/></svg>
+        <span class="nav-label">Log out</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button type="button" class="menu-btn" onclick="toggleMenu()" aria-label="Toggle menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input type="text" placeholder="Search anything…">
+      </div>
+      <div class="top-actions">
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+          <span class="badge-dot"></span>
+        </div>
+        <div class="user-chip">
+          <div class="avatar">WA</div>
+          <span>Walter A.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Page Header -->
+      <div class="page-header">
+        <div>
+          <h1>Notifications</h1>
+          <p>Review system alerts, user updates, and security events.</p>
+        </div>
+        <button class="qa-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+          Mark all as read
+        </button>
+      </div>
+
+      <!-- Notifications List -->
+      <div class="notification-group">
+        <div class="notification-date">Today</div>
+
+        <!-- Unread Alert Notification -->
+        <div class="noti-card unread">
+          <div class="noti-icon danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="noti-content">
+            <div class="noti-header">
+              <h3 class="noti-title">Suspicious Login Attempt Blocked</h3>
+              <span class="noti-time">10:42 AM</span>
+            </div>
+            <p class="noti-desc">A login attempt from an unrecognized IP address (192.168.4.21) was blocked targeting the admin account. No data was compromised.</p>
+            <div class="noti-actions">
+              <button class="btn-primary">Review Logs</button>
+              <button class="btn-outline">Dismiss</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Unread Warning Notification -->
+        <div class="noti-card unread">
+          <div class="noti-icon warning">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div class="noti-content">
+            <div class="noti-header">
+              <h3 class="noti-title">Server Capacity Warning</h3>
+              <span class="noti-time">08:15 AM</span>
+            </div>
+            <p class="noti-desc">Database cluster Alpha is currently operating at 88% capacity. Consider scaling resources if the trend continues.</p>
+            <div class="noti-actions">
+              <button class="btn-outline">View Infrastructure</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Read Success Notification -->
+        <div class="noti-card">
+          <div class="noti-icon success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div class="noti-content">
+            <div class="noti-header">
+              <h3 class="noti-title">System Update Completed</h3>
+              <span class="noti-time">02:00 AM</span>
+            </div>
+            <p class="noti-desc">Walter Tech Solutions v2.4.1 has been successfully deployed. Zero downtime was recorded during the rollout phase.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="notification-group">
+        <div class="notification-date">Yesterday</div>
+
+        <!-- Read Info Notification -->
+        <div class="noti-card">
+          <div class="noti-icon info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </div>
+          <div class="noti-content">
+            <div class="noti-header">
+              <h3 class="noti-title">New Team Member Added</h3>
+              <span class="noti-time">Yesterday, 4:30 PM</span>
+            </div>
+            <p class="noti-desc">Grace N. has accepted the invitation and joined the "Support Tier 2" workspace group.</p>
+            <div class="noti-actions">
+              <button class="btn-outline">View Profile</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Read Info Notification -->
+        <div class="noti-card">
+          <div class="noti-icon info">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          </div>
+          <div class="noti-content">
+            <div class="noti-header">
+              <h3 class="noti-title">Weekly Report Generated</h3>
+              <span class="noti-time">Yesterday, 9:00 AM</span>
+            </div>
+            <p class="noti-desc">Your automated weekly performance summary for Oct 14 – Oct 20 is ready for review.</p>
+            <div class="noti-actions">
+              <button class="btn-outline">Download PDF</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Copyright © Walter Tech Solutions. All rights reserved 2025–2026.
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+</script>
+
+</body>
+</html>

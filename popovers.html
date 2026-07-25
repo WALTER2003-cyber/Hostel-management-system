@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        .div{
+            background: linear-gradient(to bottom, #f4f0DC, #326A4E);
+            background-repeat: no-repeat;
+            margin: 0%;
+            padding: 0%;
+            background-size: cover;
+            height: 100vh;
+        }
+        [popover]{
+            position: fixed;
+            inset: 0;
+            margin: auto;
+            width: min(320px, 90vw);
+            border: none;
+            border-radius: 16px;
+            padding: 20px;
+            background-color: azure;
+            box-shadow: 10px 20px 50px rgb(0,0,0,0.3);
+        }
+        .bottom{
+            color: aliceblue;
+            background-color: #326A4E;
+            border-radius: 5px;
+            border: 1px;
+            height: 20px;
+            width: 50px;
+        }
+        /* .div{
+            margin: 6rem 12rem;
+            height: 20rem;
+            width: 36rem;
+            background-size: 20px 20px 10px grey;
+            animation: slider 10s linear infinite;
+        }
+        @keyframes slider{
+            0%{background-image: url();}
+            25%{background-image: url();}
+            50%{background-image: url();}
+            75%{background-image: url();}
+            100%{background-image: url();}
+        } */
+    </style>
+</head>
+<body class="div">
+    <div><button type="button" popovertarget="more-info">Display info</button></div>
+    <div id="more-info" popover="manual">
+        <h3>The Information</h3>
+        <p>
+            the information yo need is relevant for your class performance and 
+            you need to take it seriously without going around joking like a 
+            child in his kindergaten.
+        </p>
+        <button class="bottom" type="button" popovertarget="more-info" popovertargetaction="hide">close</button>
+    </div>
+</body>
+</html>

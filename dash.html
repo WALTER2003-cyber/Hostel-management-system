@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Walter Tech Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1729;
+    --rail:#0A0E1D;
+    --surface:#1A2240;
+    --surface-soft:#161E38;
+    --border:rgba(255,255,255,0.07);
+    --text:#F3F5FB;
+    --muted:#8B93B8;
+    --amber:#F2A93B;
+    --amber-soft:rgba(242,169,59,0.14);
+    --teal:#3ECF8E;
+    --teal-soft:rgba(62,207,142,0.14);
+    --danger:#F2665B;
+    --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    margin:0;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR ---------- */
+  .sidebar{
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:76px;
+    background:var(--rail);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 0;
+    z-index:40;
+    transition:width .28s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+  }
+  .sidebar:hover{width:222px;}
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:0 22px 26px 22px;
+    white-space:nowrap;
+  }
+  .brand-mark{
+    width:32px;height:32px;min-width:32px;
+    border-radius:9px;
+    background:linear-gradient(145deg,var(--amber),#c9821f);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#0A0E1D;
+    position:relative;
+  }
+  .pulse-dot{
+    position:absolute;
+    bottom:-2px;right:-2px;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px var(--rail);
+  }
+  .pulse-dot::after{
+    content:'';
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:var(--teal);
+    animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);opacity:.7;}
+    100%{transform:scale(2.6);opacity:0;}
+  }
+  .brand-name{
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.2px;
+    opacity:0;
+    transition:opacity .18s;
+  }
+  .sidebar:hover .brand-name{opacity:1;transition-delay:.08s;}
+
+  nav.side-nav{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:6px 12px;
+  }
+  .nav-item{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:11px 12px;
+    border-radius:10px;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    transition:color .15s, background .15s;
+  }
+  .nav-item svg{width:19px;height:19px;min-width:19px;stroke:currentColor;}
+  .nav-item:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+  .nav-item.active{color:var(--amber);background:var(--amber-soft);}
+  .nav-item.active::before{
+    content:'';
+    position:absolute;
+    left:-12px;top:50%;
+    transform:translateY(-50%);
+    width:3px;height:18px;
+    border-radius:0 3px 3px 0;
+    background:var(--amber);
+  }
+  .nav-label{opacity:0;transition:opacity .18s;}
+  .sidebar:hover .nav-label{opacity:1;transition-delay:.06s;}
+  .nav-spacer{flex:1;}
+
+  /* ---------- MAIN ---------- */
+  .main{
+    margin-left:76px;
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+  }
+
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:18px 32px;
+    background:rgba(15,23,41,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .menu-btn{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    width:38px;height:38px;
+    align-items:center;justify-content:center;
+    color:var(--text);
+    cursor:pointer;
+  }
+  .search{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:9px 14px;
+    width:320px;
+    max-width:100%;
+    color:var(--muted);
+  }
+  .search input{
+    background:none;border:none;outline:none;
+    color:var(--text);font-family:'Inter',sans-serif;
+    font-size:13.5px;width:100%;
+  }
+  .search input::placeholder{color:var(--muted);}
+  .top-actions{display:flex;align-items:center;gap:16px;}
+  .icon-btn{
+    position:relative;
+    width:38px;height:38px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .icon-btn svg{width:17px;height:17px;}
+  .badge-dot{
+    position:absolute;top:7px;right:7px;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--danger);
+    box-shadow:0 0 0 2px var(--surface);
+  }
+  .user-chip{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 12px 6px 6px;
+    border-radius:30px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(145deg,var(--teal),#1f8f5c);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#06251A;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .user-chip span{font-size:13px;font-weight:500;}
+
+  .content{
+    padding:32px;
+    flex:1;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding:30px 32px;
+    border-radius:var(--radius);
+    background:
+      radial-gradient(600px 200px at 85% -20%, rgba(242,169,59,0.18), transparent),
+      linear-gradient(135deg, var(--surface), var(--surface-soft));
+    border:1px solid var(--border);
+    margin-bottom:26px;
+    flex-wrap:wrap;
+  }
+  .hero-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:1.5px;
+    color:var(--teal);
+    text-transform:uppercase;
+    margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .hero-eyebrow::before{
+    content:'';width:6px;height:6px;border-radius:50%;
+    background:var(--teal);
+  }
+  .hero h1{font-size:30px;font-weight:600;line-height:1.25;letter-spacing:-.3px;}
+  .hero p{color:var(--muted);margin-top:8px;font-size:14.5px;max-width:480px;}
+  .hero-clock{
+    text-align:right;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .hero-clock .time{font-size:26px;font-weight:600;color:var(--amber);}
+  .hero-clock .date{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  /* ---------- STATS ---------- */
+  .stats{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:18px;
+    margin-bottom:26px;
+  }
+  .stat-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:20px;
+    transition:transform .18s, border-color .18s;
+  }
+  .stat-card:hover{transform:translateY(-3px);border-color:rgba(242,169,59,0.35);}
+  .stat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .stat-icon{
+    width:34px;height:34px;border-radius:9px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .stat-icon svg{width:16px;height:16px;}
+  .stat-icon.amber{background:var(--amber-soft);color:var(--amber);}
+  .stat-icon.teal{background:var(--teal-soft);color:var(--teal);}
+  .stat-icon.blue{background:rgba(99,140,255,0.14);color:#7C9BFF;}
+  .stat-icon.rose{background:rgba(242,102,91,0.14);color:var(--danger);}
+  .stat-delta{font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace;}
+  .stat-delta.up{color:var(--teal);background:var(--teal-soft);}
+  .stat-delta.down{color:var(--danger);background:rgba(242,102,91,0.14);}
+  .stat-value{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:600;}
+  .stat-label{font-size:12.5px;color:var(--muted);margin-top:4px;}
+
+  /* ---------- LOWER GRID ---------- */
+  .lower-grid{
+    display:grid;
+    grid-template-columns:1.6fr 1fr;
+    gap:20px;
+  }
+  .panel{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .panel-head h2{font-size:16px;font-weight:600;}
+  .panel-head a{font-size:12.5px;color:var(--amber);font-weight:600;}
+
+  .activity-row{
+    display:flex;gap:14px;align-items:flex-start;
+    padding:12px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .activity-row:last-child{border-bottom:none;padding-bottom:0;}
+  .activity-dot{
+    width:8px;height:8px;border-radius:50%;
+    margin-top:6px;flex-shrink:0;
+    background:var(--teal);
+  }
+  .activity-row.warn .activity-dot{background:var(--amber);}
+  .activity-row.alert .activity-dot{background:var(--danger);}
+  .activity-text p{font-size:13.5px;margin:0;}
+  .activity-text span{font-size:11.5px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+  .quick-actions{display:flex;flex-direction:column;gap:10px;}
+  .qa-btn{
+    display:flex;align-items:center;gap:12px;
+    padding:13px 14px;
+    border-radius:10px;
+    background:var(--surface-soft);
+    border:1px solid var(--border);
+    font-size:13.5px;font-weight:500;
+    cursor:pointer;
+    transition:border-color .15s, background .15s;
+  }
+  .qa-btn:hover{border-color:var(--amber);background:var(--amber-soft);}
+  .qa-btn svg{width:17px;height:17px;color:var(--amber);flex-shrink:0;}
+
+  footer{
+    text-align:center;
+    padding:22px;
+    color:var(--muted);
+    font-size:12px;
+    border-top:1px solid var(--border);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:980px){
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .lower-grid{grid-template-columns:1fr;}
+  }
+  @media (max-width:760px){
+    .sidebar{
+      width:0;
+      padding:22px 0;
+      transition:width .25s;
+    }
+    .sidebar.open{width:222px;}
+    .main{margin-left:0;}
+    .menu-btn{display:flex;}
+    .search{display:none;}
+    .hero{flex-direction:column;align-items:flex-start;}
+    .hero-clock{text-align:left;}
+    .stats{grid-template-columns:1fr 1fr;}
+  }
+
+  /* accessibility */
+  a:focus-visible,button:focus-visible,.nav-item:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+    border-radius:8px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">W<span class="pulse-dot"></span></div>
+      <div class="brand-name">Walter&nbsp;Tech</div>
+    </div>
+    <nav class="side-nav">
+      <a href="dash.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="userdetail.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.2-6 7.5-6s6 2 7.5 6"/></svg>
+        <span class="nav-label">User Details</span>
+      </a>
+      <a href="notifications.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+        <span class="nav-label">Notifications</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1-1.7-1.7-1.7-1.7 1a1.7 1.7 0 00-3 0l-1.7-1-1.7 1.7 1 1.7a1.7 1.7 0 000 3l-1 1.7 1.7 1.7 1.7-1a1.7 1.7 0 003 0l1.7 1 1.7-1.7z"/></svg>
+        <span class="nav-label">Settings</span>
+      </a>
+      <a href="support.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 18h.01M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4.5"/><circle cx="12" cy="12" r="9"/></svg>
+        <span class="nav-label">Support</span>
+      </a>
+      <a href="faqs.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 015.4.9c0 1.9-2.6 1.9-2.6 3.6M12 17h.01"/></svg>
+        <span class="nav-label">FAQs</span>
+      </a>
+      <div class="nav-spacer"></div>
+      <a href="lockscreen.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 4h4a1 1 0 011 1v14a1 1 0 01-1 1h-4"/><path d="M10 8l-4 4 4 4M6 12h12"/></svg>
+        <span class="nav-label">Log out</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <button type="button" class="menu-btn" onclick="toggleMenu()" aria-label="Toggle menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input type="text" placeholder="Search anything…">
+      </div>
+      <div class="top-actions">
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+          <span class="badge-dot"></span>
+        </div>
+        <div class="user-chip">
+          <div class="avatar">WA</div>
+          <span>Walter A.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <div class="hero">
+        <div>
+          <div class="hero-eyebrow">System status · all clear</div>
+          <h1>Good to see you, Walter.</h1>
+          <p>Here's what's happening across Walter Tech Solutions today.</p>
+        </div>
+        <div class="hero-clock">
+          <div class="time" id="clock">--:--</div>
+          <div class="date" id="dateNow">Loading date…</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.2-6 7.5-6s6 2 7.5 6"/></svg></div>
+            <span class="stat-delta up">+12.4%</span>
+          </div>
+          <div class="stat-value mono">2,481</div>
+          <div class="stat-label">Active users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon teal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg></div>
+            <span class="stat-delta up">+4</span>
+          </div>
+          <div class="stat-value mono">98.9%</div>
+          <div class="stat-label">Uptime this month</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v14H8l-4 4z"/></svg></div>
+            <span class="stat-delta up">+9</span>
+          </div>
+          <div class="stat-value mono">37</div>
+          <div class="stat-label">Open support tickets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-top">
+            <div class="stat-icon rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 9v4M12 17h.01"/><path d="M10.3 4.3l-8 14A1.6 1.6 0 003.7 21h16.6a1.6 1.6 0 001.4-2.4l-8-14a1.6 1.6 0 00-2.8 0z"/></svg></div>
+            <span class="stat-delta down">-2</span>
+          </div>
+          <div class="stat-value mono">3</div>
+          <div class="stat-label">Pending alerts</div>
+        </div>
+      </div>
+
+      <div class="lower-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>Recent activity</h2>
+            <a href="#">View all</a>
+          </div>
+          <div class="activity-row">
+            <div class="activity-dot"></div>
+            <div class="activity-text">
+              <p>New user <strong>Grace N.</strong> completed registration</p>
+              <span>2 min ago</span>
+            </div>
+          </div>
+          <div class="activity-row warn">
+            <div class="activity-dot"></div>
+            <div class="activity-text">
+              <p>Password reset requested for account #4021</p>
+              <span>18 min ago</span>
+            </div>
+          </div>
+          <div class="activity-row">
+            <div class="activity-dot"></div>
+            <div class="activity-text">
+              <p>Support ticket #212 marked resolved</p>
+              <span>1 hr ago</span>
+            </div>
+          </div>
+          <div class="activity-row alert">
+            <div class="activity-dot"></div>
+            <div class="activity-text">
+              <p>Failed login attempt blocked from unknown device</p>
+              <span>3 hrs ago</span>
+            </div>
+          </div>
+          <div class="activity-row">
+            <div class="activity-dot"></div>
+            <div class="activity-text">
+              <p>Weekly backup completed successfully</p>
+              <span>Yesterday, 23:10</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Quick actions</h2></div>
+          <div class="quick-actions">
+            <div class="qa-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.2-6 7.5-6s6 2 7.5 6"/><path d="M18 4v4M16 6h4"/></svg>
+              Add new user
+            </div>
+            <div class="qa-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v14H8l-4 4z"/></svg>
+              Reply to tickets
+            </div>
+            <div class="qa-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1-1.7-1.7-1.7-1.7 1a1.7 1.7 0 00-3 0l-1.7-1-1.7 1.7 1 1.7a1.7 1.7 0 000 3l-1 1.7 1.7 1.7 1.7-1a1.7 1.7 0 003 0l1.7 1 1.7-1.7z"/></svg>
+              Update settings
+            </div>
+            <div class="qa-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M4 19h16"/></svg>
+              Export report
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer>
+      Copyright © Walter Tech Solutions. All rights reserved 2025–2026.
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+  function updateClock(){
+    const now = new Date();
+    const time = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+    const date = now.toLocaleDateString([], {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    document.getElementById('clock').textContent = time;
+    document.getElementById('dateNow').textContent = date;
+  }
+  updateClock();
+  setInterval(updateClock, 1000 * 30);
+</script>
+
+</body>
+</html>

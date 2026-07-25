@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>User Details — Walter Tech Solutions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1729;
+    --rail:#0A0E1D;
+    --surface:#1A2240;
+    --surface-soft:#161E38;
+    --border:rgba(255,255,255,0.07);
+    --text:#F3F5FB;
+    --muted:#8B93B8;
+    --amber:#F2A93B;
+    --amber-soft:rgba(242,169,59,0.14);
+    --teal:#3ECF8E;
+    --teal-soft:rgba(62,207,142,0.14);
+    --danger:#F2665B;
+    --radius:14px;
+    --gap:18px;
+    --shadow: 0 10px 30px rgba(2,6,23,0.6);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{
+    font-family:'Space Grotesk',sans-serif;
+    margin:0;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  a{text-decoration:none;color:inherit;}
+
+  /* ---------- LAYOUT ---------- */
+  .shell{
+    display:flex;
+    min-height:100vh;
+  }
+
+  /* ---------- SIDEBAR (from first.html) ---------- */
+  .sidebar{
+    position:fixed;
+    top:0;left:0;bottom:0;
+    width:76px;
+    background:var(--rail);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:22px 0;
+    z-index:40;
+    transition:width .28s cubic-bezier(.4,0,.2,1);
+    overflow:hidden;
+  }
+  .sidebar:hover{width:222px;}
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:0 22px 26px 22px;
+    white-space:nowrap;
+  }
+  .brand-mark{
+    width:32px;height:32px;min-width:32px;
+    border-radius:9px;
+    background:linear-gradient(145deg,var(--amber),#c9821f);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    color:#0A0E1D;
+    position:relative;
+  }
+  .pulse-dot{
+    position:absolute;
+    bottom:-2px;right:-2px;
+    width:9px;height:9px;
+    border-radius:50%;
+    background:var(--teal);
+    box-shadow:0 0 0 3px var(--rail);
+  }
+  .pulse-dot::after{
+    content:'';
+    position:absolute;inset:0;
+    border-radius:50%;
+    background:var(--teal);
+    animation:pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{transform:scale(1);opacity:.7;}
+    100%{transform:scale(2.6);opacity:0;}
+  }
+  .brand-name{
+    font-size:14px;
+    font-weight:600;
+    letter-spacing:.2px;
+    opacity:0;
+    transition:opacity .18s;
+  }
+  .sidebar:hover .brand-name{opacity:1;transition-delay:.08s;}
+
+  nav.side-nav{
+    width:100%;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    padding:6px 12px;
+  }
+  .nav-item{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:14px;
+    padding:11px 12px;
+    border-radius:10px;
+    color:var(--muted);
+    font-size:14px;
+    font-weight:500;
+    white-space:nowrap;
+    transition:color .15s, background .15s;
+  }
+  .nav-item svg{width:19px;height:19px;min-width:19px;stroke:currentColor;}
+  .nav-item:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+  .nav-item.active{color:var(--amber);background:var(--amber-soft);}
+  .nav-item.active::before{
+    content:'';
+    position:absolute;
+    left:-12px;top:50%;
+    transform:translateY(-50%);
+    width:3px;height:18px;
+    border-radius:0 3px 3px 0;
+    background:var(--amber);
+  }
+  .nav-label{opacity:0;transition:opacity .18s;}
+  .sidebar:hover .nav-label{opacity:1;transition-delay:.06s;}
+  .nav-spacer{flex:1;}
+
+  /* ---------- MAIN ---------- */
+  .main{
+    margin-left:76px;
+    flex:1;
+    min-width:0;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* ---------- TOPBAR (from first.html) ---------- */
+  .topbar{
+    position:sticky;
+    top:0;
+    z-index:30;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+    padding:18px 32px;
+    background:rgba(15,23,41,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .menu-btn{
+    display:none;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    width:38px;height:38px;
+    align-items:center;justify-content:center;
+    color:var(--text);
+    cursor:pointer;
+  }
+  .search{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:9px 14px;
+    width:320px;
+    max-width:100%;
+    color:var(--muted);
+  }
+  .search input{
+    background:none;border:none;outline:none;
+    color:var(--text);font-family:'Inter',sans-serif;
+    font-size:13.5px;width:100%;
+  }
+  .search input::placeholder{color:var(--muted);}
+  .top-actions{display:flex;align-items:center;gap:16px;}
+  .icon-btn{
+    position:relative;
+    width:38px;height:38px;
+    border-radius:10px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    display:flex;align-items:center;justify-content:center;
+    color:var(--muted);
+    cursor:pointer;
+  }
+  .icon-btn svg{width:17px;height:17px;}
+  .badge-dot{
+    position:absolute;top:7px;right:7px;
+    width:7px;height:7px;border-radius:50%;
+    background:var(--danger);
+    box-shadow:0 0 0 2px var(--surface);
+  }
+  .user-chip{
+    display:flex;align-items:center;gap:10px;
+    padding:6px 12px 6px 6px;
+    border-radius:30px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    cursor:pointer;
+  }
+  .user-chip-avatar{
+    width:28px;height:28px;border-radius:50%;
+    background:linear-gradient(145deg,var(--teal),#1f8f5c);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:700;color:#06251A;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .user-chip span{font-size:13px;font-weight:500;}
+
+  /* ---------- CONTENT ---------- */
+  .content{
+    padding:32px;
+    flex:1;
+  }
+
+  /* ---------- USER DETAIL CARDS ---------- */
+  .cards{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:var(--gap);
+  }
+
+  .profile-card{
+    background:linear-gradient(180deg,var(--surface),var(--surface-soft));
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+
+  .profile-hero{display:flex;gap:16px;align-items:center;}
+  .avatar{
+    width:96px;height:96px;border-radius:50%;overflow:hidden;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;
+    font-family:'Space Grotesk',sans-serif;
+    background:linear-gradient(135deg,var(--amber),var(--teal));color:#071026;border:3px solid rgba(255,255,255,0.06);
+  }
+  .name-block h1{margin:0;font-size:20px;letter-spacing:-0.2px;}
+  .name-block p{margin:6px 0 0;color:var(--muted);font-size:13px;}
+
+  .quick-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  .stat{
+    background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    padding:10px 12px;border-radius:10px;font-size:13px;color:var(--text);min-width:120px;border:1px solid var(--border);
+  }
+  .stat .label{display:block;color:var(--muted);font-size:12px;}
+  .stat .value{font-weight:600;margin-top:4px;}
+
+  .details-card{
+    background:linear-gradient(180deg,var(--surface),rgba(26,34,64,0.6));
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    border:1px solid var(--border);
+  }
+
+  .header-row{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+  .header-row h2{margin:0;font-size:18px;font-family:'Space Grotesk',sans-serif;}
+  .actions{display:flex;gap:10px;align-items:center;}
+  .btn{
+    background:linear-gradient(90deg,var(--teal),#2bbf7a);
+    color:#071026;border:none;padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700;
+    font-family:'Inter',sans-serif;
+    box-shadow:0 8px 20px rgba(62,207,142,0.08);
+  }
+  .btn.secondary{
+    background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.08);box-shadow:none;font-weight:600;
+  }
+
+  .info-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 22px;margin-top:18px;}
+  .info-row{display:flex;flex-direction:column;gap:6px;}
+  .info-row .label{font-size:12px;color:var(--muted);}
+  .info-row .value{font-weight:700;color:var(--text);}
+
+  .badge{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:700;font-size:13px;}
+  .badge.paid{background:var(--teal-soft);color:var(--teal);}
+  .badge.due{background:var(--amber-soft);color:var(--amber);}
+  .badge.overdue{background:rgba(242,102,91,0.12);color:var(--danger);}
+
+  .amount{display:flex;align-items:center;gap:12px;margin-top:14px;}
+  .amount .big{font-size:20px;font-weight:800;}
+  .progress{height:8px;background:rgba(255,255,255,0.03);border-radius:999px;overflow:hidden;width:220px;border:1px solid rgba(255,255,255,0.03);}
+  .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--teal),var(--amber));width:40%;}
+
+  .notes{margin-top:18px;font-size:13px;color:var(--muted);background:linear-gradient(180deg, rgba(255,255,255,0.01), rgba(255,255,255,0.005));padding:12px;border-radius:10px;border:1px solid var(--border);}
+
+  .meta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+  .chip{background:rgba(255,255,255,0.02);padding:8px 10px;border-radius:10px;border:1px solid var(--border);font-size:13px;color:var(--muted);}
+
+  /* ---------- FOOTER (from first.html) ---------- */
+  footer{
+    text-align:center;
+    padding:22px;
+    color:var(--muted);
+    font-size:12px;
+    border-top:1px solid var(--border);
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width:980px){
+    .cards{grid-template-columns:1fr;}
+  }
+  @media (max-width:760px){
+    .sidebar{
+      width:0;
+      padding:22px 0;
+      transition:width .25s;
+    }
+    .sidebar.open{width:222px;}
+    .main{margin-left:0;}
+    .menu-btn{display:flex;}
+    .search{display:none;}
+    .content{padding:20px;}
+  }
+
+  /* accessibility */
+  a:focus-visible,button:focus-visible,.nav-item:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+    border-radius:8px;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <!-- SIDEBAR (from first.html) -->
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">W<span class="pulse-dot"></span></div>
+      <div class="brand-name">Walter&nbsp;Tech</div>
+    </div>
+    <nav class="side-nav">
+      <a href="dash.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+        <span class="nav-label">Dashboard</span>
+      </a>
+      <a href="userdetail.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="8" r="3.5"/><path d="M4.5 20c1.5-4 4.2-6 7.5-6s6 2 7.5 6"/></svg>
+        <span class="nav-label">User Details</span>
+      </a>
+      <a href="notifications.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+        <span class="nav-label">Notifications</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="2.8"/><path d="M19.4 13.5a1.7 1.7 0 000-3l1-1.7-1.7-1.7-1.7 1a1.7 1.7 0 00-3 0l-1.7-1-1.7 1.7 1 1.7a1.7 1.7 0 000 3l-1 1.7 1.7 1.7 1.7-1a1.7 1.7 0 003 0l1.7 1 1.7-1.7z"/></svg>
+        <span class="nav-label">Settings</span>
+      </a>
+      <a href="support.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M12 18h.01M9.5 9a2.5 2.5 0 015 0c0 2-2.5 2-2.5 4.5"/><circle cx="12" cy="12" r="9"/></svg>
+        <span class="nav-label">Support</span>
+      </a>
+      <a href="faqs.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M9.2 9.5a2.8 2.8 0 015.4.9c0 1.9-2.6 1.9-2.6 3.6M12 17h.01"/></svg>
+        <span class="nav-label">FAQs</span>
+      </a>
+      <div class="nav-spacer"></div>
+      <a href="lockscreen.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M15 4h4a1 1 0 011 1v14a1 1 0 01-1 1h-4"/><path d="M10 8l-4 4 4 4M6 12h12"/></svg>
+        <span class="nav-label">Log out</span>
+      </a>
+    </nav>
+  </aside>
+
+  <div class="main">
+
+    <!-- TOPBAR (from first.html) -->
+    <div class="topbar">
+      <button type="button" class="menu-btn" onclick="toggleMenu()" aria-label="Toggle menu">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+      </button>
+      <div class="search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input type="text" placeholder="Search anything…">
+      </div>
+      <div class="top-actions">
+        <div class="icon-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 10-12 0c0 5-2 6-2 6h16s-2-1-2-6"/><path d="M10 20a2 2 0 004 0"/></svg>
+          <span class="badge-dot"></span>
+        </div>
+        <div class="user-chip">
+          <div class="user-chip-avatar">WA</div>
+          <span>Walter A.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="content">
+      <div class="cards">
+
+        <!-- Profile card -->
+        <aside class="profile-card" aria-labelledby="user-name">
+          <div class="profile-hero">
+            <div class="avatar" aria-hidden="true">JD</div>
+            <div class="name-block">
+              <h1 id="user-name">John Doe</h1>
+              <p>johndoe@example.com</p>
+            </div>
+          </div>
+
+          <div class="quick-stats">
+            <div class="stat">
+              <span class="label">Hostel</span>
+              <span class="value">Sunrise Hostel</span>
+            </div>
+            <div class="stat">
+              <span class="label">Room</span>
+              <span class="value">203 • Double</span>
+            </div>
+            <div class="stat">
+              <span class="label">Semester</span>
+              <span class="value">Semester 2</span>
+            </div>
+            <div class="stat">
+              <span class="label">Year</span>
+              <span class="value">2nd Year</span>
+            </div>
+          </div>
+        </aside>
+
+        <!-- Details card -->
+        <section class="details-card" aria-labelledby="details-title">
+          <div class="header-row">
+            <h2 id="details-title">User Details</h2>
+            <div class="actions">
+              <button class="btn" id="editBtn" type="button">Edit</button>
+              <button class="btn secondary" id="messageBtn" type="button">Message</button>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-row">
+              <span class="label">Full Name</span>
+              <span class="value">John Doe</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Email</span>
+              <span class="value">johndoe@example.com</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Hostel Name</span>
+              <span class="value">Sunrise Hostel</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Hostel Manager</span>
+              <span class="value">Mr. Smith</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Room Number</span>
+              <span class="value">203</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Room Type</span>
+              <span class="value">Double</span>
+            </div>
+            <div class="info-row">
+              <span class="label">University</span>
+              <span class="value">Kyambogo University</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Semester</span>
+              <span class="value">Semester 2</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Year of Study</span>
+              <span class="value">2nd Year</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Amount Due</span>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span class="value" style="font-size:20px;font-weight:800;">UGX 250,000</span>
+                <span class="badge due">Due</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="amount">
+            <div class="big">Payment progress</div>
+            <div class="progress">
+              <i style="width:40%"></i>
+            </div>
+          </div>
+
+          <div class="notes">
+            <strong>Note</strong>
+            <div>Contact the hostel manager for payment arrangements. Click Message to send a quick email or SMS.</div>
+          </div>
+
+          <div class="meta-row">
+            <div class="chip">Hostel Manager: Mr. Smith</div>
+            <div class="chip">Contact: +256 700 000000</div>
+            <div class="chip">Status: <span class="badge paid" style="margin-left:8px">Active</span></div>
+          </div>
+        </section>
+
+      </div>
+    </div>
+
+    <!-- FOOTER (from first.html) -->
+    <footer>
+      Copyright &copy; Walter Tech Solutions. All rights reserved 2025–2026.
+    </footer>
+
+  </div>
+
+</div>
+
+<script>
+  function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('open');
+  }
+
+  document.getElementById('editBtn').addEventListener('click', function(){
+    alert('Open edit form to update user details.');
+  });
+  document.getElementById('messageBtn').addEventListener('click', function(){
+    alert('Open messaging modal or prefill email to user.');
+  });
+</script>
+
+</body>
+</html>
