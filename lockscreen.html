@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lockscreen | Walter Tech</title>
+  
+  <!-- Matching Fonts from your dashboard -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Walter Tech Design System Variables */
+      --bg: #0F1729;
+      --surface: #1A2240;
+      --surface-soft: #161E38;
+      --border: rgba(255, 255, 255, 0.12);
+      --text: #F3F5FB;
+      --muted: #8B93B8;
+      --amber: #F2A93B;
+      --amber-soft: rgba(242, 169, 59, 0.14);
+      --teal: #3ECF8E;
+      --radius: 14px;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .lockscreen-wrapper {
+      max-width: 400px;
+      margin: 0 auto;
+      text-align: center;
+      width: 100%;
+      padding: 0 20px;
+      box-sizing: border-box;
+    }
+
+    .lockscreen-logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 32px;
+      font-weight: 500;
+      margin-bottom: 24px;
+      letter-spacing: -0.5px;
+    }
+    
+    .lockscreen-logo b {
+      font-weight: 700;
+      color: var(--amber);
+    }
+
+    .lockscreen-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+
+    .lockscreen-item {
+      background: var(--surface);
+      border-radius: var(--radius);
+      position: relative;
+      margin: 20px auto 32px auto;
+      width: 100%;
+      max-width: 320px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+      transition: border-color 0.2s ease;
+    }
+
+    .lockscreen-item:focus-within {
+      border-color: var(--amber);
+    }
+
+    .lockscreen-image {
+      position: absolute;
+      left: -20px;
+      top: -12px;
+      background: var(--bg);
+      padding: 6px;
+      border-radius: 50%;
+      z-index: 10;
+    }
+
+    .lockscreen-image img {
+      border-radius: 50%;
+      width: 64px;
+      height: 64px;
+      object-fit: cover;
+      /* Fallback gradient matching the Walter Tech Avatar */
+      background: linear-gradient(145deg, var(--teal), #1f8f5c);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .lockscreen-credentials {
+      margin-left: 65px;
+      display: flex;
+      width: 100%;
+      height: 100%;
+    }
+
+    .lockscreen-credentials input {
+      border: 0;
+      padding: 0 16px;
+      width: 100%;
+      height: 100%;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 14.5px;
+      box-sizing: border-box;
+    }
+
+    .lockscreen-credentials input::placeholder {
+      color: var(--muted);
+    }
+
+    .lockscreen-credentials .btn {
+      background-color: var(--surface-soft);
+      border: 0;
+      border-left: 1px solid var(--border);
+      border-radius: 0 calc(var(--radius) - 1px) calc(var(--radius) - 1px) 0;
+      width: 56px;
+      height: 100%;
+      cursor: pointer;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s, color 0.2s;
+    }
+
+    .lockscreen-credentials .btn:hover,
+    .lockscreen-credentials .btn:focus {
+      background-color: var(--amber-soft);
+      color: var(--amber);
+      outline: none;
+    }
+
+    .help-block {
+      margin-top: 16px;
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .alt-link {
+      display: inline-block;
+      margin-top: 12px;
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .alt-link:hover {
+      color: var(--amber);
+    }
+
+    .lockscreen-footer {
+      margin-top: 40px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="lockscreen-wrapper">
+    
+    <div class="lockscreen-logo">
+      Walter <b>Tech</b>
+    </div>
+    
+    <div class="lockscreen-name">Walter A.</div>
+
+    <div class="lockscreen-item">
+      <div class="lockscreen-image">
+        <!-- Using a placeholder data image for testing. In prod, use your profile.jpg -->
+        <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><rect width='64' height='64' fill='%233ECF8E'/><text x='32' y='36' font-family='sans-serif' font-size='20' font-weight='bold' fill='%2306251A' text-anchor='middle' alignment-baseline='middle'>WA</text></svg>" alt="User">
+      </div>
+      
+      <form class="lockscreen-credentials" onsubmit="event.preventDefault();">
+        <input type="password" placeholder="Enter password" required autofocus>
+        <button type="submit" class="btn" title="Sign In">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+            <polyline points="12 5 19 12 12 19"></polyline>
+          </svg>
+        </button>
+      </form>
+    </div>
+
+    <div class="help-block">
+      Your session was locked due to inactivity.<br>Enter your password to retrieve your session.
+    </div>
+    
+    <a href="signup.html" class="alt-link">Switch Account</a>
+    
+    <div class="lockscreen-footer">
+      Copyright &copy; 2025-2026 Walter Tech Solutions.<br>
+      All rights reserved.
+    </div>
+    
+  </div>
+</body>
+</html>

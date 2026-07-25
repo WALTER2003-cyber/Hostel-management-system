@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>User Details — Dark Theme with Sidebar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0F1729;
+    --rail:#0A0E1D;
+    --surface:#1A2240;
+    --surface-soft:#161E38;
+    --border:rgba(255,255,255,0.07);
+    --text:#F3F5FB;
+    --muted:#8B93B8;
+    --amber:#F2A93B;
+    --amber-soft:rgba(242,169,59,0.14);
+    --teal:#3ECF8E;
+    --teal-soft:rgba(62,207,142,0.14);
+    --danger:#F2665B;
+    --radius:14px;
+    --gap:18px;
+    --shadow: 0 10px 30px rgba(2,6,23,0.6);
+    --sidebar-width: 260px;
+    --topbar-height: 64px;
+    --footer-height: 56px;
+  }
+
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:'Inter',system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial;background:linear-gradient(180deg,var(--bg),var(--rail));color:var(--text)}
+  a{color:inherit;text-decoration:none}
+
+  .topbar{position:fixed;top:0;left:0;right:0;height:var(--topbar-height);display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:var(--surface);border-bottom:1px solid var(--border);z-index:40}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--amber),var(--teal));display:flex;align-items:center;justify-content:center;color:#071026;font-weight:800}
+  .brand h3{margin:0;font-size:16px}
+
+  .page{padding-top:calc(var(--topbar-height) + 20px);padding-bottom:calc(var(--footer-height) + 20px);min-height:100vh}
+  .layout{width:100%;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:var(--sidebar-width) 1fr;gap:var(--gap);padding:20px}
+
+  .sidebar{background:var(--surface-soft);border-radius:var(--radius);padding:18px;border:1px solid var(--border);box-shadow:var(--shadow)}
+  .nav{display:flex;flex-direction:column;gap:12px}
+  .nav a{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;color:var(--text);font-weight:600}
+  .nav a:hover{background:rgba(255,255,255,0.05)}
+
+  .content-area{display:flex;flex-direction:column;gap:var(--gap)}
+  .cards{display:grid;grid-template-columns:320px 1fr;gap:var(--gap)}
+
+  .profile-card,.details-card{background:var(--surface);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);border:1px solid var(--border)}
+  .avatar{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:28px;background:linear-gradient(135deg,var(--amber),var(--teal));color:#071026}
+  .name-block h1{margin:0;font-size:20px}
+  .quick-stats{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .stat{background:rgba(255,255,255,0.02);padding:10px;border-radius:10px;font-size:13px;color:var(--text)}
+
+  .footer{position:fixed;left:0;right:0;bottom:0;height:var(--footer-height);display:flex;align-items:center;justify-content:center;background:var(--surface);border-top:1px solid var(--border);color:var(--muted)}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">W</div>
+      <h3>Walter Tech</h3>
+    </div>
+  </header>
+
+  <main class="page">
+    <div class="layout">
+      <!-- Sidebar with your original navigations -->
+      <aside class="sidebar">
+        <nav class="nav">
+          <a href="#"><img src="dashboard.svg" alt=""> Dashboard</a>
+          <a href="#"><img src="profile.svg" alt=""> User Details</a>
+          <a href="#"><img src="notifications.svg" alt=""> Notifications</a>
+          <a href="#"><img src="settings.svg" alt=""> Settings</a>
+          <a href="#"><img src="support.svg" alt=""> Support</a>
+          <a href="#"><img src="sfaqs.svg" alt=""> FAQS</a>
+          <a href="#"><img src="logout.svg" alt=""> Log out</a>
+        </nav>
+      </aside>
+
+      <!-- Content area -->
+      <section class="content-area">
+        <div class="cards">
+          <aside class="profile-card">
+            <div class="avatar">JD</div>
+            <div class="name-block">
+              <h1>John Doe</h1>
+              <p class="muted">johndoe@example.com</p>
+            </div>
+          </aside>
+
+          <section class="details-card">
+            <h2>User Details</h2>
+            <!-- details grid here -->
+          </section>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer">
+    © 2026 Walter Tech Solutions. All rights reserved.
+  </footer>
+</body>
